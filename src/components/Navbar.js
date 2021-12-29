@@ -15,22 +15,24 @@ import { Link } from "react-router-dom";
 function Navbar(params) {
   return (
     <nav>
-      <Link to="/">
-        <div className="w-fit my-1 p-4 hover:rounded-full hover:bg-blue-200">
-          <FaTwitter className="text-3xl text-blue-500 " />
-        </div>
-      </Link>
+      <div className="w-fit">
+        <Link to="/">
+          <div className="w-fit my-1 p-4 hover:rounded-full hover:bg-blue-200">
+            <FaTwitter className="text-3xl text-blue-500 " />
+          </div>
+        </Link>
+      </div>
 
       <ul className="grid gap-4 my-2">
         {[
-          ["/", <RiHome7Fill />, "Inicio", true],
-          ["/trending", <FaHashtag />, "Explorar"],
-          ["/", <FaRegBell />, "Notificaciones"],
-          ["/", <FaRegEnvelope />, "Mensajes"],
-          ["/", <FaRegBookmark />, "Guardados"],
-          ["/", <FaListAlt />, "Listas"],
-          ["/", <FaRegUser />, "Perfil"],
-          ["/", <FaCogs />, "Mas opciones"],
+          ["/", <RiHome7Fill />, "Home", true],
+          ["/trending", <FaHashtag />, "Explore"],
+          ["/", <FaRegBell />, "Notifications"],
+          ["/", <FaRegEnvelope />, "Messages"],
+          ["/", <FaRegBookmark />, "Bookmarks"],
+          ["/", <FaListAlt />, "List"],
+          ["/", <FaRegUser />, "Profile"],
+          ["/", <FaCogs />, "More"],
         ].map(([url, icon, text, selected]) => (
           <li>
             <Link

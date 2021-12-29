@@ -1,3 +1,26 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap");
+
+@layer base {
+  *,
+  *:after,
+  *:before {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  .trans-hover {
+    @apply transition-all duration-200;
+  }
+  #sign-divider {
+    @apply grid grid-cols-1fr-auto-1fr items-center gap-2 my-2 before:block before:w-16 before:h-[1px] before:bg-white after:block after:h-[1px] after:bg-white;
+  }
+  #sign-divider::before,
+  #sign-divider::after {
+    content: "";
+  }
+}
