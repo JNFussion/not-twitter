@@ -1,17 +1,40 @@
-import React from "react";
+import React, { useState } from "react";
 import { AiOutlinePicture } from "react-icons/ai";
 import { getAuth } from "firebase/auth";
+import {
+  addDoc,
+  collection,
+  getFirestore,
+  serverTimestamp,
+} from "firebase/firestore";
 
-function TweetForm(params) {
+async function saveMessage(messageText) {
+  try {
+    await addDoc(collection(getFirestore(), "tweets"), {
+      name: getAuth().currentUser.displayName,
+      text: messageText,
+      profilePicUrl: getAuth().currentUser.photoURL,
+      timestamp: serverTimestamp(),
+    });
+  } catch (error) {
+    console.error("Error writing new message to Firebase Database", error);
+  }
+}
+
+function handleSubmit(e) {
+  e.preventDefault();
+  console.log(e.targert.tweet);
+}
+
+function TweetForm() {
+  const [currentUser, setCurrentUser] = useState(() =>
+    JSON.parse(sessionStorage.getItem("currentUser"))
+  );
   return (
     <article className="flex gap-4 p-4">
       <div>
         <div className="w-12 h-12">
-          <img
-            src={getAuth().currentUser.photoURL}
-            alt=""
-            className="rounded-full"
-          />
+          <img src={currentUser.photoURL} alt="" className="rounded-full" />
         </div>
       </div>
       <form action="" className="flex-1">
@@ -42,6 +65,7 @@ function TweetForm(params) {
           <button
             type="submit"
             className="my-2 py-1 px-4 rounded-full font-medium text-white bg-blue-500 disabled:bg-blue-300"
+            onSubmit={handleSubmit}
           >
             Tweet
           </button>

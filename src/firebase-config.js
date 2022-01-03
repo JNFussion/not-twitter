@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
+import { getAuth, initializeAuth, onAuthStateChanged } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCYhHzuFhGkoO-YvoWIGntFdO5ajRrGQ40",
@@ -28,4 +28,5 @@ function isUserSignedIn() {
 
 const firebaseAppConfig = getFirebaseConfig();
 const firebaseApp = initializeApp(firebaseAppConfig);
+
 export { firebaseApp, isUserSignedIn };

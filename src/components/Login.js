@@ -2,13 +2,12 @@ import React, { useEffect, useState } from "react";
 import { FaTimesCircle, FaTwitter } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import firebase from "firebase/compat/app";
 import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
-import { firebaseApp } from "../firebase-config";
 
-function Login(params) {
+function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
@@ -16,7 +15,9 @@ function Login(params) {
 
   async function signIn() {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(getAuth(), provider).then(() => {
+    signInWithPopup(getAuth(), provider).then((response) => {
+      console.log(JSON.stringify(response.user));
+      sessionStorage.setItem("currentUser", JSON.stringify(response.user));
       navigate(from, { replace: true });
     });
   }
