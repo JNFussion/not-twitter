@@ -16,7 +16,6 @@ function Login() {
   async function signIn() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(getAuth(), provider).then((response) => {
-      console.log(JSON.stringify(response.user));
       sessionStorage.setItem("currentUser", JSON.stringify(response.user));
       navigate(from, { replace: true });
     });

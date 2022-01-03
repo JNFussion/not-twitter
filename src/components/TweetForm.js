@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlinePicture } from "react-icons/ai";
 import { getAuth } from "firebase/auth";
 import {
@@ -8,12 +8,12 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 
-async function saveMessage(messageText) {
+async function saveMessage(messageText, currentUser) {
   try {
     await addDoc(collection(getFirestore(), "tweets"), {
-      name: getAuth().currentUser.displayName,
+      name: currentUser.displayName,
       text: messageText,
-      profilePicUrl: getAuth().currentUser.photoURL,
+      profilePicUrl: currentUser.photoURL,
       timestamp: serverTimestamp(),
     });
   } catch (error) {
@@ -21,15 +21,16 @@ async function saveMessage(messageText) {
   }
 }
 
-function handleSubmit(e) {
-  e.preventDefault();
-  console.log(e.targert.tweet);
-}
-
 function TweetForm() {
   const [currentUser, setCurrentUser] = useState(() =>
     JSON.parse(sessionStorage.getItem("currentUser"))
   );
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    saveMessage(e.target.tweet.value, currentUser);
+  }
+
   return (
     <article className="flex gap-4 p-4">
       <div>
@@ -37,7 +38,7 @@ function TweetForm() {
           <img src={currentUser.photoURL} alt="" className="rounded-full" />
         </div>
       </div>
-      <form action="" className="flex-1">
+      <form action="" className="flex-1" onSubmit={handleSubmit}>
         <textarea
           name="tweet"
           id="tweet-area"
@@ -47,7 +48,7 @@ function TweetForm() {
           className="w-full h-auto px-4 py-4 resize-none border-b focus:outline-none"
         />
         <div className="flex items-center justify-between">
-          <label
+          {/*           <label
             className="cursor-pointer p-2 rounded-full trans-hover hover:bg-blue-100"
             htmlFor="file"
           >
@@ -61,11 +62,10 @@ function TweetForm() {
               aria-label="File browser"
               className="hidden"
             />
-          </label>
+          </label> */}
           <button
             type="submit"
             className="my-2 py-1 px-4 rounded-full font-medium text-white bg-blue-500 disabled:bg-blue-300"
-            onSubmit={handleSubmit}
           >
             Tweet
           </button>
