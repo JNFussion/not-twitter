@@ -1,4 +1,3 @@
-import { getAuth, signOut } from "firebase/auth";
 import {
   collection,
   getFirestore,
@@ -7,20 +6,13 @@ import {
   orderBy,
   query,
 } from "firebase/firestore";
+import PropTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
+import ProfileBtn from "./ProfileBtn";
 import Tweet from "./Tweet";
-import TweetForm from "./TweetForm";
 
-function signOutUser() {
-  signOut(getAuth());
-}
-
-function Layout(params) {
-  const [currentUser, setCurrentUser] = useState(() =>
-    JSON.parse(sessionStorage.getItem("currentUser"))
-  );
-  const [isHidden, setIsHidden] = useState(true);
+function Layout({ head }) {
   const [tweets, setTweets] = useState([]);
 
   useEffect(() => {
@@ -61,7 +53,6 @@ function Layout(params) {
         });
       });
     }
-    console.log(tweets);
     loadTweets();
     return () => {};
   }, []);
@@ -70,30 +61,11 @@ function Layout(params) {
     <article className="max-w-6xl mx-auto grid grid-cols-layout">
       <div>
         <Navbar />
-        <article className="my-10 grid gap-8">
-          <button
-            type="button"
-            className={isHidden ? "hidden" : ""}
-            onClick={signOutUser}
-          >
-            Log out {currentUser.displayName}
-          </button>
-          <button
-            type="button"
-            className="flex items-center gap-4"
-            onClick={() => setIsHidden((prevState) => !prevState)}
-          >
-            <div className="w-12">
-              <img src={currentUser.photoURL} alt="" className="rounded-full" />
-            </div>
-            <h2>{currentUser.displayName}</h2>
-          </button>
-        </article>
+        <ProfileBtn />
       </div>
 
       <main className="border-x">
-        <h1 className="p-4 font-bold text-xl">Home</h1>
-        <TweetForm currentUser={currentUser} />
+        {head}
         <div className="border-t">
           {tweets.map((t) => (
             <Tweet
@@ -111,5 +83,9 @@ function Layout(params) {
     </article>
   );
 }
+
+Layout.propTypes = {
+  head: PropTypes.element.isRequired,
+};
 
 export default Layout;
