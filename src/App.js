@@ -1,8 +1,8 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import React, { useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import React from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "./components/Home";
 import Login from "./components/Login";
+import Profile from "./components/Profile";
 import RequireAuth from "./components/requireAuth";
 
 function App() {
@@ -27,6 +27,7 @@ function App() {
         />
 
         <Route path="/login" element={<Login />} />
+        <Route path="/profile/:username" element={<Profile />} />
       </Routes>
     </BrowserRouter>
   );

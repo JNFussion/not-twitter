@@ -1,8 +1,11 @@
+import { FaUserCircle } from "react-icons/fa";
 import { getAuth, signOut } from "firebase/auth";
 import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 
 function signOutUser() {
   signOut(getAuth());
+  sessionStorage.setItem("currentUser", null);
 }
 
 function ProfileBtn(params) {
@@ -26,7 +29,11 @@ function ProfileBtn(params) {
         onClick={() => setIsHidden((prevState) => !prevState)}
       >
         <div className="w-12">
-          <img src={currentUser.photoURL} alt="" className="rounded-full" />
+          {currentUser.photoURL ? (
+            <img src={currentUser.photoURL} alt="" className="rounded-full" />
+          ) : (
+            <FaUserCircle className="text-5xl" />
+          )}
         </div>
         <h2>{currentUser.displayName}</h2>
       </button>

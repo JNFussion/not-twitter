@@ -7,6 +7,7 @@ import {
   getFirestore,
   serverTimestamp,
 } from "firebase/firestore";
+import { FaUserCircle } from "react-icons/fa";
 
 async function saveMessage(messageText, currentUser) {
   try {
@@ -35,7 +36,11 @@ function TweetForm() {
     <article className="flex gap-4 p-4">
       <div>
         <div className="w-12 h-12">
-          <img src={currentUser.photoURL} alt="" className="rounded-full" />
+          {currentUser.photoURL ? (
+            <img src={currentUser.photoURL} alt="" className="rounded-full" />
+          ) : (
+            <FaUserCircle className="text-5xl" />
+          )}
         </div>
       </div>
       <form action="" className="flex-1" onSubmit={handleSubmit}>

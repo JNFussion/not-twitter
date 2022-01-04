@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { FaTimesCircle, FaTwitter } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
 import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useLocation, useNavigate } from "react-router-dom";
-import firebase from "firebase/compat/app";
-import * as firebaseui from "firebaseui";
 import "firebaseui/dist/firebaseui.css";
+import Signup from "./Signup";
 
 function Login() {
   const navigate = useNavigate();
@@ -20,18 +19,6 @@ function Login() {
       navigate(from, { replace: true });
     });
   }
-
-  useEffect(() => {
-    const ui = new firebaseui.auth.AuthUI(getAuth());
-    const uiConfig = {
-      signInOptions: [firebase.auth.EmailAuthProvider.PROVIDER_ID],
-    };
-    if (ui.isPendingRedirect()) {
-      ui.start("#signup-container", uiConfig);
-    }
-
-    return () => {};
-  }, []);
 
   return (
     <div className="grid grid-cols-2">
@@ -115,6 +102,7 @@ function Login() {
           >
             <FaTimesCircle />
           </button>
+          <Signup />
         </div>
       </div>
     </div>

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaCogs,
   FaHashtag,
@@ -13,6 +13,9 @@ import { RiHome7Fill } from "react-icons/ri";
 import { Link } from "react-router-dom";
 
 function Navbar(params) {
+  const [currentUser, setCurrentUser] = useState(() =>
+    JSON.parse(sessionStorage.getItem("currentUser"))
+  );
   return (
     <nav>
       <div className="w-fit">
@@ -31,7 +34,7 @@ function Navbar(params) {
           ["/", <FaRegEnvelope />, "Messages"],
           ["/", <FaRegBookmark />, "Bookmarks"],
           ["/", <FaListAlt />, "List"],
-          ["/", <FaRegUser />, "Profile"],
+          [`/profile/${currentUser.username}`, <FaRegUser />, "Profile"],
           ["/", <FaCogs />, "More"],
         ].map(([url, icon, text, selected]) => (
           <li>
