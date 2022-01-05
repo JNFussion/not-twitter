@@ -41,7 +41,7 @@ function ProfileHead(params) {
             <span>
               <GrLocation />
             </span>
-            <span>{currentUser.location.pathname}</span>
+            <span>{currentUser.userLocation}</span>
           </li>
           <li className="flex gap-2 items-center">
             <span>

@@ -15,6 +15,8 @@ import Tweet from "./Tweet";
 function Layout({ head }) {
   const [tweets, setTweets] = useState([]);
 
+  // TWEETS RELATED
+
   useEffect(() => {
     function deleteTweet(id) {
       setTweets((prevState) => prevState.filter((tweet) => tweet.id !== id));

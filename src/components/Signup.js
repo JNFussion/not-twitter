@@ -4,10 +4,11 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { addDoc, collection, getFirestore } from "firebase/firestore";
+import propTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function Signup(params) {
+function Signup({ account }) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [username, setUsername] = useState();
@@ -20,45 +21,64 @@ function Signup(params) {
   const location = useLocation();
   const from = location.state?.from?.pathname || "/";
 
-  async function signIn() {
-    createUserWithEmailAndPassword(getAuth(), email, password).then(
-      (response) => {
-        updateProfile(response.user, {
-          displayName,
+  const [currentUser, setCurrentUser] = useState(() =>
+    JSON.parse(sessionStorage.getItem("currentUser"))
+  );
+
+  async function createProfile(user) {
+    updateProfile(user, {
+      displayName,
+    }).then(() => {
+      try {
+        addDoc(collection(getFirestore(), "user"), {
+          uid: user.uid,
+          username,
+          bio,
+          userLocation,
         }).then(() => {
-          try {
-            addDoc(collection(getFirestore(), "user"), {
-              uid: response.user.uid,
+          sessionStorage.setItem(
+            "currentUser",
+            JSON.stringify({
+              ...user,
               username,
               bio,
               userLocation,
-            }).then(() => {
-              sessionStorage.setItem(
-                "currentUser",
-                JSON.stringify({
-                  ...response.user,
-                  username,
-                  bio,
-                  userLocation,
-                })
-              );
-              navigate(from, { replace: true });
-            });
-          } catch (error) {
-            console.error(
-              "Error writing new message to Firebase Database",
-              error
-            );
-          }
+            })
+          );
+          navigate(from, { replace: true });
         });
+      } catch (error) {
+        console.error("Error writing new message to Firebase Database", error);
       }
-    );
+    });
   }
 
+  async function signIn() {
+    const { user } = await createUserWithEmailAndPassword(
+      getAuth(),
+      email,
+      password
+    );
+    createProfile(user);
+  }
+
+  // eslint-disable-next-line consistent-return
   function handleSubmit(e) {
     e.preventDefault();
-    signIn();
+    if (account) {
+      signIn();
+      return;
+    }
+    createProfile(getAuth().currentUser);
+    navigate(from, { replace: true });
   }
+
+  useEffect(() => {
+    if (!account && pos === 0) {
+      setPos((prevPos) => prevPos + 1);
+    }
+    return () => {};
+  }, []);
 
   return (
     <form
@@ -66,7 +86,7 @@ function Signup(params) {
       className="p-4 rounded border border-white bg-black text-white"
       onSubmit={handleSubmit}
     >
-      {pos === 0 && (
+      {pos === 0 && account && (
         <fieldset className="grid gap-4">
           <label htmlFor="signup-email">
             <div>Email</div>
@@ -127,13 +147,15 @@ function Signup(params) {
             />
           </label>
           <div className="py-2 flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={() => setPos((prevPos) => prevPos - 1)}
-              className="px-4 py-2 rounded-full font-bold bg-white text-black"
-            >
-              Back
-            </button>
+            {account && (
+              <button
+                type="button"
+                onClick={() => setPos((prevPos) => prevPos - 1)}
+                className="px-4 py-2 rounded-full font-bold bg-white text-black"
+              >
+                Back
+              </button>
+            )}
             <button
               type="button"
               className="px-4 py-2 rounded-full font-bold bg-blue-500"
@@ -175,5 +197,12 @@ function Signup(params) {
     </form>
   );
 }
+
+Signup.propTypes = {
+  account: propTypes.bool,
+};
+Signup.defaultProps = {
+  account: false,
+};
 
 export default Signup;
