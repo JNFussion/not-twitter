@@ -3,12 +3,12 @@ import {
   getAuth,
   updateProfile,
 } from "firebase/auth";
-import { addDoc, collection, getFirestore } from "firebase/firestore";
+import { doc, getFirestore, setDoc } from "firebase/firestore";
 import propTypes from "prop-types";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-function Signup({ account }) {
+function Signup({ account, setMissingProfile }) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [username, setUsername] = useState();
@@ -30,11 +30,13 @@ function Signup({ account }) {
       displayName,
     }).then(() => {
       try {
-        addDoc(collection(getFirestore(), "user"), {
-          uid: user.uid,
+        setDoc(doc(getFirestore(), "users", user.uid), {
+          displayName: user.displayName,
           username,
           bio,
           userLocation,
+          photoURL: user.photoURL,
+          createdAt: user.metadata.creationTime,
         }).then(() => {
           sessionStorage.setItem(
             "currentUser",
@@ -45,7 +47,9 @@ function Signup({ account }) {
               userLocation,
             })
           );
-          navigate(from, { replace: true });
+          if (setMissingProfile) {
+            setMissingProfile(false);
+          }
         });
       } catch (error) {
         console.error("Error writing new message to Firebase Database", error);
@@ -70,7 +74,6 @@ function Signup({ account }) {
       return;
     }
     createProfile(getAuth().currentUser);
-    navigate(from, { replace: true });
   }
 
   useEffect(() => {
@@ -200,6 +203,8 @@ function Signup({ account }) {
 
 Signup.propTypes = {
   account: propTypes.bool,
+  // eslint-disable-next-line react/require-default-props
+  setMissingProfile: propTypes.func,
 };
 Signup.defaultProps = {
   account: false,
