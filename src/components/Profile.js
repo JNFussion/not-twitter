@@ -8,11 +8,11 @@ import {
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { getCurrentUser, getProfile } from "../firebase-config";
+import { getProfile } from "../firebase-config";
 import Layout from "./Layout";
 import ProfileHead from "./ProfileHead";
 
-function Profile(params) {
+function Profile() {
   const [user, setUser] = useState();
   const { username } = useParams();
 

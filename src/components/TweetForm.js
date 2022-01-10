@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import { AiOutlinePicture } from "react-icons/ai";
-import { getAuth } from "firebase/auth";
+import React, { useState } from "react";
 import {
   addDoc,
   collection,
@@ -11,12 +9,16 @@ import { FaUserCircle } from "react-icons/fa";
 
 async function saveMessage(messageText, currentUser) {
   try {
-    await addDoc(collection(getFirestore(), "tweets"), {
-      name: currentUser.displayName,
-      text: messageText,
-      profilePicUrl: currentUser.photoURL,
-      timestamp: serverTimestamp(),
-    });
+    await addDoc(
+      collection(getFirestore(), `users/${currentUser.uid}/tweets`),
+      {
+        name: currentUser.displayName,
+        username: currentUser.username,
+        text: messageText,
+        profilePicUrl: currentUser.photoURL,
+        timestamp: serverTimestamp(),
+      }
+    );
   } catch (error) {
     console.error("Error writing new message to Firebase Database", error);
   }

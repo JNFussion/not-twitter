@@ -1,5 +1,14 @@
 import { initializeApp } from "firebase/app";
-import { getAuth, initializeAuth, onAuthStateChanged } from "firebase/auth";
+import { getAuth } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  getFirestore,
+  query,
+  where,
+} from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCYhHzuFhGkoO-YvoWIGntFdO5ajRrGQ40",
@@ -26,7 +35,45 @@ function isUserSignedIn() {
   return !!getAuth().currentUser;
 }
 
+async function getProfileByID(uid) {
+  const docSnap = await getDoc(doc(getFirestore(), "users", uid));
+  return docSnap.data();
+}
+
+/**
+ *  It searchs a doc in users collection by the field and value provided.
+ *  Ex: field: username, value: JNFussion;
+ *
+ * @param {string} field
+ * @param {*} value
+ * @returns data of the matching doc.
+ */
+
+async function getProfile(field, value) {
+  let profile;
+  const q = query(
+    collection(getFirestore(), "users"),
+    where(field, "==", value)
+  );
+  const querySnapshot = await getDocs(q);
+  querySnapshot.forEach((docu) => {
+    // doc.data() is never undefined for query doc snapshots
+    profile = { uid: docu.id, ...docu.data() };
+  });
+  return profile;
+}
+
+function getCurrentUser() {
+  return JSON.parse(sessionStorage.getItem("currentUser"));
+}
+
 const firebaseAppConfig = getFirebaseConfig();
 const firebaseApp = initializeApp(firebaseAppConfig);
 
-export { firebaseApp, isUserSignedIn };
+export {
+  firebaseApp,
+  isUserSignedIn,
+  getProfile,
+  getProfileByID,
+  getCurrentUser,
+};

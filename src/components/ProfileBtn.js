@@ -1,14 +1,13 @@
 import { FaUserCircle } from "react-icons/fa";
 import { getAuth, signOut } from "firebase/auth";
 import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 function signOutUser() {
   signOut(getAuth());
-  sessionStorage.setItem("currentUser", null);
 }
 
-function ProfileBtn(params) {
+function ProfileBtn() {
   const [currentUser, setCurrentUser] = useState(() =>
     JSON.parse(sessionStorage.getItem("currentUser"))
   );
@@ -21,7 +20,7 @@ function ProfileBtn(params) {
         className={isHidden ? "hidden" : ""}
         onClick={signOutUser}
       >
-        Log out {currentUser.displayName}
+        <Link to="/login">Log out {currentUser.displayName}</Link>
       </button>
       <button
         type="button"
