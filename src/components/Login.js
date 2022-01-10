@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import { FaTimesCircle, FaTwitter } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithEmailAndPassword,
+  signInWithPopup,
+} from "firebase/auth";
 import { useLocation, useNavigate } from "react-router-dom";
 import "firebaseui/dist/firebaseui.css";
 import Signup from "./Signup";
@@ -18,6 +23,22 @@ function Login() {
       sessionStorage.setItem("currentUser", JSON.stringify(response.user));
       navigate(from, { replace: true });
     });
+  }
+
+  function login(e) {
+    e.preventDefault();
+    signInWithEmailAndPassword(
+      getAuth(),
+      e.target.email.value,
+      e.target.password.value
+    )
+      .then((response) => {
+        sessionStorage.setItem("currentUser", JSON.stringify(response.user));
+        navigate(from, { replace: true });
+      })
+      .catch((error) => {
+        console.error("Cannot login", error);
+      });
   }
 
   return (
@@ -61,10 +82,11 @@ function Login() {
           Sign up
         </button>
 
-        <form action="" className="w-96 grid gap-3 my-6">
+        <form action="" className="w-96 grid gap-3 my-6" onSubmit={login}>
           <label htmlFor="email" className="">
             <div>Email</div>
             <input
+              required
               type="email"
               name="email"
               id="email"
@@ -74,6 +96,7 @@ function Login() {
           <label htmlFor="password">
             <div>Password</div>
             <input
+              required
               type="password"
               name="password"
               id="password"
@@ -102,7 +125,7 @@ function Login() {
           >
             <FaTimesCircle />
           </button>
-          <Signup />
+          <Signup account />
         </div>
       </div>
     </div>
