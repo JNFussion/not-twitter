@@ -1,14 +1,41 @@
+import {
+  collection,
+  getFirestore,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import React, { useEffect, useState } from "react";
-import { getProfileByID } from "../firebase-config";
+import { getCurrentUser, getProfileByID } from "../firebase-config";
 import HomeHeader from "./HomeHeader";
 import Layout from "./Layout";
 import Signup from "./Signup";
 
-function Home() {
-  const [currentUser, setCurrentUser] = useState(() =>
-    JSON.parse(sessionStorage.getItem("currentUser"))
+function getFollowing(uid, usersFollowing, setter) {
+  const q = query(
+    collection(getFirestore(), "following"),
+    where("uid", "==", uid)
   );
+  onSnapshot(q, (snapshot) => {
+    snapshot.docChanges().forEach((change) => {
+      const userUID = change.doc.data().following;
+      if (change.type === "removed") {
+        setter((prevState) => [...prevState.filter((u) => u !== userUID)]);
+      }
+      if (!usersFollowing.find((u) => u === userUID)) {
+        setter((prevState) => [...prevState, userUID]);
+      }
+    });
+  });
+}
+
+function Home() {
+  const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [missingProfile, setMissingProfile] = useState();
+  const [usersFollowing, setUsersFollowing] = useState([]);
+  const [feedTweets, setFeedTweets] = useState([]);
+
+  // Fetch current user profile
 
   useEffect(() => {
     getProfileByID(currentUser.uid).then((profile) => {
@@ -28,6 +55,33 @@ function Home() {
     return () => {};
   }, []);
 
+  useEffect(() => {
+    getFollowing(currentUser.uid, usersFollowing, setUsersFollowing);
+    const listeners = [];
+    if (usersFollowing.length !== 0) {
+      usersFollowing.forEach((id) => {
+        const unsub = onSnapshot(
+          collection(getFirestore(), `users/${id}/tweets`),
+          (d) => {
+            d.forEach((t) => {
+              if (!feedTweets.find((tweet) => tweet.id === t.id)) {
+                setFeedTweets((prevState) => [
+                  ...prevState,
+                  { id: t.id, ...t.data() },
+                ]);
+              }
+            });
+          }
+        );
+        listeners.push(unsub);
+      });
+    }
+
+    return () => {
+      listeners.forEach((l) => l());
+    };
+  }, [usersFollowing]);
+
   return (
     <div className="relative">
       {missingProfile && (
@@ -37,7 +91,7 @@ function Home() {
           </div>
         </div>
       )}
-      <Layout head={<HomeHeader />} />
+      <Layout head={<HomeHeader />} tweets={feedTweets.flat()} />
     </div>
   );
 }

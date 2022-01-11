@@ -32,11 +32,27 @@ function Profile() {
     function deleteTweet(id) {
       setTweets((prevState) => prevState.filter((tweet) => tweet.id !== id));
     }
-    function addTweet(id, timestamp, name, text, profilePicUrl, imageUrl) {
+    function addTweet(
+      id,
+      timestamp,
+      name,
+      text,
+      profilePicUrl,
+      imageUrl,
+      tweetUsername
+    ) {
       if (!tweets.find((tweet) => id === tweet.id)) {
         setTweets((prevState) => [
           ...prevState,
-          { id, timestamp, name, text, profilePicUrl, imageUrl },
+          {
+            id,
+            timestamp,
+            name,
+            text,
+            profilePicUrl,
+            imageUrl,
+            username: tweetUsername,
+          },
         ]);
       }
     }
@@ -59,7 +75,8 @@ function Profile() {
               tweet.name,
               tweet.text,
               tweet.profilePicUrl,
-              tweet.imageUrl
+              tweet.imageUrl,
+              tweet.username
             );
           }
         });

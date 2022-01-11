@@ -4,8 +4,9 @@ import { FaRegComment, FaRegHeart } from "react-icons/fa";
 import { FiRepeat } from "react-icons/fi";
 import PropTypes from "prop-types";
 import React from "react";
+import { Link } from "react-router-dom";
 
-function Tweet({ id, name, profilePicUrl, text, timestamp }) {
+function Tweet({ id, name, profilePicUrl, text, timestamp, username }) {
   return (
     <article id={id} className="flex gap-4 p-4 border-b">
       <div className="w-12">
@@ -13,7 +14,17 @@ function Tweet({ id, name, profilePicUrl, text, timestamp }) {
       </div>
       <section>
         <header className="flex gap-4">
-          <h2 className="font-bold capitalize">{name}</h2>
+          <h2>
+            <Link
+              to={`/profile/${username}`}
+              className="flex gap-2 items-center"
+            >
+              <span className="font-bold capitalize hover:underline">
+                {name}
+              </span>
+              <span className="text-gray-400 text-sm">@{username}</span>
+            </Link>
+          </h2>
           <div className="text-gray-500">
             {formatDistanceToNow(
               new Date(secondsToMilliseconds(timestamp.seconds))
@@ -53,6 +64,7 @@ Tweet.propTypes = {
   // eslint-disable-next-line react/forbid-prop-types
   // eslint-disable-next-line react/require-default-props
   timestamp: PropTypes.any,
+  username: PropTypes.string.isRequired,
 };
 
 export default Tweet;

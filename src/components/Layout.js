@@ -23,6 +23,7 @@ function Layout({ head, tweets }) {
               name={t.name}
               text={t.text}
               profilePicUrl={t.profilePicUrl}
+              username={t.username}
             />
           ))}
         </div>
