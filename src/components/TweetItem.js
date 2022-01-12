@@ -1,6 +1,7 @@
 /* eslint-disable react/forbid-prop-types */
 import { formatDistanceToNow, getTime, secondsToMilliseconds } from "date-fns";
 import {
+  FaHeart,
   FaRegComment,
   FaRegHeart,
   FaTimesCircle,
@@ -8,9 +9,31 @@ import {
 } from "react-icons/fa";
 import { FiRepeat } from "react-icons/fi";
 import PropTypes from "prop-types";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getFirestore,
+  onSnapshot,
+  query,
+  where,
+} from "firebase/firestore";
 import TweetForm from "./TweetForm";
+import { getCurrentUser } from "../firebase-config";
+
+function like(id, uid) {
+  addDoc(collection(getFirestore(), "likes"), {
+    id,
+    uid,
+  });
+}
+
+function unlike(id) {
+  deleteDoc(doc(getFirestore(), "likes", id));
+}
 
 function TweetItem({
   id,
@@ -22,7 +45,33 @@ function TweetItem({
   modalTweet,
   respondingTo,
 }) {
+  const [currentUser, setCurrentUser] = useState(getCurrentUser);
   const [respondTo, setRespondTo] = useState(false);
+
+  const [liked, setLiked] = useState();
+
+  useEffect(() => {
+    if (currentUser) {
+      onSnapshot(
+        query(
+          collection(getFirestore(), "likes"),
+          where("uid", "==", currentUser.uid),
+          where("id", "==", id)
+        ),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              setLiked(undefined);
+            } else {
+              setLiked({ likeID: change.doc.id, ...change.doc.data() });
+            }
+          });
+        }
+      );
+    }
+
+    return () => {};
+  }, []);
   return (
     <article id={id} className="flex gap-4 p-4 border-b">
       <div className="w-12">
@@ -80,8 +129,17 @@ function TweetItem({
               </button>
             </li>
             <li className="flex-1">
-              <button type="button">
-                <FaRegHeart />
+              <button
+                type="button"
+                onClick={
+                  liked
+                    ? () => {
+                        unlike(liked.likeID);
+                      }
+                    : () => like(id, currentUser.uid)
+                }
+              >
+                {liked ? <FaHeart className="text-red-600" /> : <FaRegHeart />}
               </button>
             </li>
           </ul>

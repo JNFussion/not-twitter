@@ -106,7 +106,7 @@ function Home() {
         </div>
       )}
 
-      {feedTweets.length !== 0 ? (
+      {feedTweets.length !== 0 || usersFollowing.length === 0 ? (
         <Layout head={<HomeHeader />} tweets={feedTweets.flat()} />
       ) : (
         <div className="h-screen w-screen grid place-items-center font-bold text-lg">

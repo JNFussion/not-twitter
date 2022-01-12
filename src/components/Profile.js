@@ -30,9 +30,6 @@ function Profile() {
 
   const [tweets, setTweets] = useState([]);
   useEffect(() => {
-    function deleteTweet(id) {
-      setTweets((prevState) => prevState.filter((tweet) => tweet.id !== id));
-    }
     function addTweet(
       id,
       timestamp,
@@ -63,23 +60,23 @@ function Profile() {
         collection(getFirestore(), "tweets"),
         where("authorUID", "==", user.uid),
         orderBy("timestamp", "desc"),
-        limit(10)
+        limit(25)
       );
       onSnapshot(recentTweetsQuery, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
           if (change.type === "removed") {
-            deleteTweet(change.doc.id);
-          } else {
-            const tweet = change.doc.data();
-            addTweet(
-              change.doc.id,
-              tweet.timestamp,
-              tweet.name,
-              tweet.text,
-              tweet.profilePicUrl,
-              tweet.imageUrl,
-              tweet.username
+            setTweets((prevState) =>
+              prevState.filter((tweet) => tweet.id !== change.doc.id)
             );
+          }
+          if (!tweets.find((tweet) => change.doc.id === tweet.id)) {
+            setTweets((prevState) => [
+              ...prevState,
+              {
+                id: change.doc.id,
+                ...change.doc.data(),
+              },
+            ]);
           }
         });
       });
