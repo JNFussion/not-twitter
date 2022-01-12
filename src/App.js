@@ -4,6 +4,7 @@ import Home from "./components/Home";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import RequireAuth from "./components/requireAuth";
+import Tweet from "./components/Tweet";
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
 
         <Route path="/login" element={<Login />} />
         <Route path="/profile/:username" element={<Profile />} />
+        <Route path="/tweet/:id" element={<Tweet />} />
       </Routes>
     </BrowserRouter>
   );

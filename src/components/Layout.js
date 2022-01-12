@@ -2,7 +2,7 @@ import PropTypes from "prop-types";
 import React from "react";
 import Navbar from "./Navbar";
 import ProfileBtn from "./ProfileBtn";
-import Tweet from "./Tweet";
+import TweetItem from "./TweetItem";
 
 function Layout({ head, tweets }) {
   return (
@@ -16,7 +16,7 @@ function Layout({ head, tweets }) {
         {head}
         <div className="border-t">
           {tweets.map((t) => (
-            <Tweet
+            <TweetItem
               key={t.id}
               id={t.id}
               timestamp={t.timestamp}
@@ -24,6 +24,7 @@ function Layout({ head, tweets }) {
               text={t.text}
               profilePicUrl={t.profilePicUrl}
               username={t.username}
+              respondingTo={t.respondingTo}
             />
           ))}
         </div>

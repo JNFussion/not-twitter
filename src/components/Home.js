@@ -2,6 +2,7 @@ import {
   collection,
   getFirestore,
   onSnapshot,
+  orderBy,
   query,
   where,
 } from "firebase/firestore";
@@ -32,8 +33,6 @@ function getFollowing(uid, usersFollowing, setter) {
 function Home() {
   const [currentUser, setCurrentUser] = useState(() => getCurrentUser());
   const [missingProfile, setMissingProfile] = useState();
-  const [usersFollowing, setUsersFollowing] = useState([]);
-  const [feedTweets, setFeedTweets] = useState([]);
 
   // Fetch current user profile
 
@@ -55,31 +54,46 @@ function Home() {
     return () => {};
   }, []);
 
+  // Fetch tweets of current user's following users.
+  const [usersFollowing, setUsersFollowing] = useState([]);
+  const [feedTweets, setFeedTweets] = useState([]);
+
   useEffect(() => {
     getFollowing(currentUser.uid, usersFollowing, setUsersFollowing);
-    const listeners = [];
-    if (usersFollowing.length !== 0) {
-      usersFollowing.forEach((id) => {
-        const unsub = onSnapshot(
-          collection(getFirestore(), `users/${id}/tweets`),
-          (d) => {
-            d.forEach((t) => {
-              if (!feedTweets.find((tweet) => tweet.id === t.id)) {
-                setFeedTweets((prevState) => [
-                  ...prevState,
-                  { id: t.id, ...t.data() },
-                ]);
-              }
-            });
+    function loadFeed() {
+      const responds = query(
+        collection(getFirestore(), "tweets"),
+        where("authorUID", "in", [...usersFollowing, currentUser.uid]),
+        orderBy("timestamp")
+      );
+      onSnapshot(responds, (snapshot) => {
+        snapshot.docChanges().forEach((change) => {
+          if (change.type === "removed") {
+            setFeedTweets((prevState) =>
+              prevState.filter((tweet) => tweet.id !== change.doc.id)
+            );
           }
-        );
-        listeners.push(unsub);
+          if (
+            change.type === "added" &&
+            !feedTweets.find((tweet) => change.doc.id === tweet.id)
+          ) {
+            setFeedTweets((prevState) => [
+              {
+                id: change.doc.id,
+                ...change.doc.data(),
+              },
+              ...prevState,
+            ]);
+          }
+        });
       });
     }
 
-    return () => {
-      listeners.forEach((l) => l());
-    };
+    if (usersFollowing.length !== 0) {
+      loadFeed();
+    }
+
+    return () => {};
   }, [usersFollowing]);
 
   return (
@@ -91,7 +105,14 @@ function Home() {
           </div>
         </div>
       )}
-      <Layout head={<HomeHeader />} tweets={feedTweets.flat()} />
+
+      {feedTweets.length !== 0 ? (
+        <Layout head={<HomeHeader />} tweets={feedTweets.flat()} />
+      ) : (
+        <div className="h-screen w-screen grid place-items-center font-bold text-lg">
+          Loading...
+        </div>
+      )}
     </div>
   );
 }

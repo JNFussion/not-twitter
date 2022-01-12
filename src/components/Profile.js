@@ -5,6 +5,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
@@ -59,7 +60,8 @@ function Profile() {
 
     function loadTweets() {
       const recentTweetsQuery = query(
-        collection(getFirestore(), `users/${user.uid}/tweets`),
+        collection(getFirestore(), "tweets"),
+        where("authorUID", "==", user.uid),
         orderBy("timestamp", "desc"),
         limit(10)
       );

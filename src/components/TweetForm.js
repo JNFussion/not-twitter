@@ -6,34 +6,47 @@ import {
   serverTimestamp,
 } from "firebase/firestore";
 import { FaUserCircle } from "react-icons/fa";
+import propTypes from "prop-types";
 
-async function saveMessage(messageText, currentUser) {
+async function saveMessage(messageText, currentUser, path, username) {
+  const collectionPath = path || `tweets`;
   try {
-    await addDoc(
-      collection(getFirestore(), `users/${currentUser.uid}/tweets`),
-      {
-        name: currentUser.displayName,
-        username: currentUser.username,
-        text: messageText,
-        profilePicUrl: currentUser.photoURL,
-        timestamp: serverTimestamp(),
-      }
-    );
+    let tweet = {
+      authorUID: currentUser.uid,
+      name: currentUser.displayName,
+      username: currentUser.username,
+      text: messageText,
+      profilePicUrl: currentUser.photoURL,
+      timestamp: serverTimestamp(),
+    };
+    if (path) {
+      tweet = { respondingTo: username, ...tweet };
+    }
+
+    await addDoc(collection(getFirestore(), collectionPath), tweet);
   } catch (error) {
     console.error("Error writing new message to Firebase Database", error);
   }
 }
 
-function TweetForm() {
+function TweetForm({ id, username }) {
   const [currentUser, setCurrentUser] = useState(() =>
     JSON.parse(sessionStorage.getItem("currentUser"))
   );
 
   function handleSubmit(e) {
     e.preventDefault();
+    if (id) {
+      saveMessage(
+        e.target.tweet.value,
+        currentUser,
+        `/tweets/${id}/responds`,
+        username
+      );
+    }
     saveMessage(e.target.tweet.value, currentUser);
+    e.target.tweet.value = "";
   }
-
   return (
     <article className="flex gap-4 p-4">
       <div>
@@ -81,5 +94,15 @@ function TweetForm() {
     </article>
   );
 }
+
+TweetForm.propTypes = {
+  id: propTypes.string,
+  username: propTypes.string,
+};
+
+TweetForm.defaultProps = {
+  id: undefined,
+  username: undefined,
+};
 
 export default TweetForm;
