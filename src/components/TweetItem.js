@@ -35,6 +35,28 @@ function unlike(id) {
   deleteDoc(doc(getFirestore(), "likes", id));
 }
 
+async function saveRetweet(
+  id,
+  currentUserUID,
+  currentUserDisplayName,
+  currentUserUsername
+) {
+  try {
+    await addDoc(collection(getFirestore(), `retweets`), {
+      tweetID: id,
+      retweetUid: currentUserUID,
+      retweetDisplayName: currentUserDisplayName,
+      retweetUsername: currentUserUsername,
+    });
+  } catch (error) {
+    console.error("Error writing new message to Firebase Database", error);
+  }
+}
+
+function removeRetweet(id) {
+  deleteDoc(doc(getFirestore(), "retweets", id));
+}
+
 function TweetItem({
   id,
   name,
@@ -44,12 +66,12 @@ function TweetItem({
   username,
   modalTweet,
   respondingTo,
+  retweetInfo,
 }) {
   const [currentUser, setCurrentUser] = useState(getCurrentUser);
   const [respondTo, setRespondTo] = useState(false);
 
   const [liked, setLiked] = useState();
-
   useEffect(() => {
     if (currentUser) {
       onSnapshot(
@@ -69,11 +91,34 @@ function TweetItem({
         }
       );
     }
-
     return () => {};
   }, []);
+
+  const [retweet, setRetweet] = useState();
+  useEffect(() => {
+    if (currentUser) {
+      onSnapshot(
+        query(
+          collection(getFirestore(), "retweets"),
+          where("tweetID", "==", id),
+          where("retweetUid", "==", currentUser.uid)
+        ),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              setRetweet(undefined);
+            } else {
+              setRetweet({ retweetID: change.doc.id, ...change.doc.data() });
+            }
+          });
+        }
+      );
+    }
+    return () => {};
+  }, []);
+
   return (
-    <article id={id} className="flex gap-4 p-4 border-b">
+    <article id={id} className="flex gap-4 items-center p-4 border-b">
       <div className="w-12">
         {profilePicUrl ? (
           <img src={profilePicUrl} alt="" className="rounded-full" />
@@ -82,6 +127,16 @@ function TweetItem({
         )}
       </div>
       <section>
+        {retweetInfo && (
+          <p>
+            <Link
+              to={`/profile/${retweetInfo.retweetUsername}`}
+              className="opacity-70 text-sm font-medium hover:underline"
+            >
+              {retweetInfo.retweetDisplayName} retweeted
+            </Link>
+          </p>
+        )}
         <header className="flex gap-4">
           <h2>
             <Link
@@ -124,7 +179,21 @@ function TweetItem({
               </button>
             </li>
             <li className="flex-1">
-              <button type="button">
+              <button
+                type="button"
+                className={retweet ? "text-green-600" : ""}
+                onClick={
+                  retweet
+                    ? () => removeRetweet(retweet.retweetID)
+                    : () =>
+                        saveRetweet(
+                          id,
+                          currentUser.uid,
+                          currentUser.displayName,
+                          currentUser.username
+                        )
+                }
+              >
                 <FiRepeat />
               </button>
             </li>
@@ -181,12 +250,14 @@ TweetItem.propTypes = {
   username: PropTypes.string.isRequired,
   modalTweet: PropTypes.bool,
   respondingTo: PropTypes.string,
+  retweetInfo: PropTypes.shape(PropTypes.object),
 };
 
 TweetItem.defaultProps = {
   timestamp: { seconds: getTime(new Date()) / 1000 },
   modalTweet: false,
   respondingTo: undefined,
+  retweetInfo: undefined,
 };
 
 export default TweetItem;

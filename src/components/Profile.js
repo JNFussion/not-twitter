@@ -1,5 +1,6 @@
 import {
   collection,
+  documentId,
   getFirestore,
   limit,
   onSnapshot,
@@ -13,6 +14,35 @@ import { getProfile } from "../firebase-config";
 import Layout from "./Layout";
 import ProfileHead from "./ProfileHead";
 
+function getRetweetsRef(userUID, setter, arr) {
+  onSnapshot(
+    query(
+      collection(getFirestore(), "retweets"),
+      where("retweetUid", "==", userUID)
+    ),
+    (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "removed") {
+          setter((prevState) => [
+            ...prevState.filter((u) => u.id !== change.doc.id),
+          ]);
+        }
+        if (!arr.find((u) => u.id === change.doc.id)) {
+          setter((prevState) => [
+            ...prevState,
+            { id: change.doc.id, ...change.doc.data() },
+          ]);
+        }
+      });
+    }
+  );
+}
+
+function allTweets(ownTweets, retweets) {
+  const all = [...ownTweets, ...retweets];
+  return all.sort((a, b) => a.timestamp.seconds > b.timestamp.seconds);
+}
+
 function Profile() {
   const [user, setUser] = useState();
   const { username } = useParams();
@@ -24,45 +54,22 @@ function Profile() {
       setUser(u);
     });
     return () => {};
-  }, []);
+  }, [username]);
 
   // Tweets Related
 
   const [tweets, setTweets] = useState([]);
   useEffect(() => {
-    function addTweet(
-      id,
-      timestamp,
-      name,
-      text,
-      profilePicUrl,
-      imageUrl,
-      tweetUsername
-    ) {
-      if (!tweets.find((tweet) => id === tweet.id)) {
-        setTweets((prevState) => [
-          ...prevState,
-          {
-            id,
-            timestamp,
-            name,
-            text,
-            profilePicUrl,
-            imageUrl,
-            username: tweetUsername,
-          },
-        ]);
-      }
-    }
-
-    function loadTweets() {
+    let unsub;
+    if (user) {
+      setTweets([]);
       const recentTweetsQuery = query(
         collection(getFirestore(), "tweets"),
         where("authorUID", "==", user.uid),
         orderBy("timestamp", "desc"),
         limit(25)
       );
-      onSnapshot(recentTweetsQuery, (snapshot) => {
+      unsub = onSnapshot(recentTweetsQuery, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
           if (change.type === "removed") {
             setTweets((prevState) =>
@@ -81,14 +88,64 @@ function Profile() {
         });
       });
     }
+    return () => {
+      if (user) {
+        unsub();
+      }
+    };
+  }, [user]);
+
+  const [retweetsRef, setRetweetsRef] = useState([]);
+  const [retweets, setRetweets] = useState([]);
+  useEffect(() => {
     if (user) {
-      loadTweets();
+      getRetweetsRef(user.uid, setRetweetsRef, retweetsRef);
     }
     return () => {};
   }, [user]);
 
+  useEffect(() => {
+    let unsub;
+    if (retweetsRef.length !== 0) {
+      unsub = onSnapshot(
+        query(
+          collection(getFirestore(), "tweets"),
+          where(
+            documentId(),
+            "in",
+            retweetsRef.map((i) => i.tweetID)
+          )
+        ),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "removed") {
+              setRetweets((prevState) => [
+                ...prevState.filter((u) => u.id !== change.doc.id),
+              ]);
+            }
+            if (!retweets.find((u) => u.id === change.doc.id)) {
+              const retweet = retweetsRef.find(
+                (r) => r.tweetID === change.doc.id
+              );
+              setRetweets((prevState) => [
+                ...prevState,
+                { id: change.doc.id, ...change.doc.data(), retweet },
+              ]);
+            }
+          });
+        }
+      );
+    }
+    return () => {};
+  }, [retweetsRef]);
+
   if (user) {
-    return <Layout head={<ProfileHead user={user} />} tweets={tweets} />;
+    return (
+      <Layout
+        head={<ProfileHead user={user} />}
+        tweets={allTweets(tweets, retweets)}
+      />
+    );
   }
   return (
     <div className="h-screen w-screen grid place-items-center font-bold text-lg">

@@ -21,7 +21,9 @@ function follow(currentUserUID, followingUserUID) {
 
 function handleSubmit(e, currentUserUID) {
   e.preventDefault();
-  follow(currentUserUID, e.target["user-uid"].value);
+  if (e.target["user-uid"].value) {
+    follow(currentUserUID, e.target["user-uid"].value);
+  }
 }
 
 async function unfollow(e, followingDocID) {
