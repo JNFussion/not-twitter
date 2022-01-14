@@ -1,17 +1,21 @@
 import PropTypes from "prop-types";
-import React from "react";
+import React, { useState } from "react";
 import { FaUserCircle } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import { getCurrentUser } from "../firebase-config";
 import FollowBtn from "./FollowBtn";
 import Navbar from "./Navbar";
 import ProfileBtn from "./ProfileBtn";
 import TweetItem from "./TweetItem";
 
 function Layout({ head, tweets }) {
+  const [currentUser, setCurrentUser] = useState(getCurrentUser());
+
   return (
     <article className="max-w-7xl mx-auto grid grid-cols-layout">
       <div>
-        <Navbar />
-        <ProfileBtn />
+        {currentUser && <Navbar />}
+        {currentUser && <ProfileBtn />}
       </div>
 
       <main className="border-x">
@@ -34,21 +38,32 @@ function Layout({ head, tweets }) {
       </main>
       <aside>
         <article className="m-4 p-4 rounded-md bg-gray-50">
-          <h2 className="text-xl font-bold">Who to follow</h2>
-          <div className="my-4">
-            <article className=" flex gap-4 items-center">
-              <div>
-                <FaUserCircle className="text-5xl" />
-              </div>
-              <div>
-                <h3 className="font-medium">John Doe</h3>
-                <p className=" text-gray-400">@johndoe</p>
-              </div>
-              <div>
-                <FollowBtn uid="" />
-              </div>
-            </article>
-          </div>
+          <h2 className="text-xl font-bold">
+            {currentUser ? "Who to follow" : "Are you new on Twitter?"}
+          </h2>
+          {currentUser ? (
+            <div className="my-4">
+              <article className=" flex gap-4 items-center">
+                <div>
+                  <FaUserCircle className="text-5xl" />
+                </div>
+                <div>
+                  <h3 className="font-medium">John Doe</h3>
+                  <p className=" text-gray-400">@johndoe</p>
+                </div>
+                <div>
+                  <FollowBtn uid="" />
+                </div>
+              </article>
+            </div>
+          ) : (
+            <Link
+              to="/"
+              className="block w-fit mx-auto my-4 px-4 py-2 rounded-full text-lg font-medium text-white bg-blue-500"
+            >
+              Log in
+            </Link>
+          )}
         </article>
       </aside>
     </article>

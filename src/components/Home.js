@@ -89,7 +89,7 @@ function Home() {
       });
     }
 
-    if (usersFollowing.length !== 0) {
+    if (usersFollowing.length !== 0 || currentUser) {
       loadFeed();
     }
 

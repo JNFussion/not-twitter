@@ -60,9 +60,11 @@ function ProfileHead({ user }) {
                 <FaUserCircle className=" rounded-full text-9xl bg-white" />
               )}
             </div>
-            <div className="z-0 absolute bottom-0 w-full bg-white h-1/5">
-              {currentUser.uid !== user.uid && <FollowBtn uid={user.uid} />}
-            </div>
+            {currentUser && (
+              <div className="z-0 absolute bottom-0 w-full bg-white h-1/5">
+                {currentUser.uid !== user.uid && <FollowBtn uid={user.uid} />}
+              </div>
+            )}
           </div>
         </div>
         <div className="m-4">

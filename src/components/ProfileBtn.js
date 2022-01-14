@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 function signOutUser() {
   signOut(getAuth());
+  sessionStorage.clear();
 }
 
 function ProfileBtn() {
