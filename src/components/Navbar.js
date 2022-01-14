@@ -26,7 +26,7 @@ function Navbar(params) {
         </Link>
       </div>
 
-      <ul className="grid gap-4 my-2">
+      <ul className="flex flex-wrap sm:grid gap-4 my-2">
         {[
           ["/", <RiHome7Fill />, "Home", true],
           ["/trending", <FaHashtag />, "Explore"],
@@ -43,7 +43,13 @@ function Navbar(params) {
               className="w-fit flex items-center gap-4 px-4 py-2 text-xl trans-hover hover:bg-gray-200 hover:rounded-full"
             >
               <span className="text-2xl">{icon}</span>
-              <span className={selected ? "font-bold" : ""}>{text}</span>
+              <span
+                className={
+                  selected ? "hidden sm:inline font-bold" : "sm:inline hidden"
+                }
+              >
+                {text}
+              </span>
             </Link>
           </li>
         ))}

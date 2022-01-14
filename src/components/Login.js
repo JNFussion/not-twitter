@@ -42,17 +42,17 @@ function Login() {
   }
 
   return (
-    <div className="grid grid-cols-2">
+    <div className="grid lg:grid-cols-2 auto-rows-fr">
       <article className=" grid grid-rows-2">
-        <header className="place-self-center p-10 text-8xl font-bold rounded-md shadow-lg shadow-blue-100/30 bg-blue-100">
+        <header className="place-self-center p-10 text-4xl lg:text-6xl xl:text-8xl font-bold rounded-md shadow-lg shadow-blue-100/30 bg-blue-100">
           <h1 className="flex items-center gap-4 ">
             <span>
-              <FaTwitter className="text-9xl text-blue-500 " />
+              <FaTwitter className="text-6xl lg:text-7xl xl:text-9xl text-blue-500 " />
             </span>
             <span>Not Twitter</span>
           </h1>
         </header>
-        <div className="max-w-lg mx-auto">
+        <div className="max-w-lg mx-auto px-2">
           <h2 className="mb-2 text-3xl font-bold text-center">
             ***DISCAIMER***
           </h2>
@@ -62,7 +62,7 @@ function Login() {
           </p>
         </div>
       </article>
-      <div className="h-screen grid place-items-center place-content-center text-white bg-black ">
+      <div className="h-[50vh] lg:h-screen grid place-items-center place-content-center text-white bg-black ">
         <button
           type="button"
           className="flex items-center gap-4 px-4 py-2 rounded-full text-black bg-white"
@@ -83,7 +83,7 @@ function Login() {
         </button>
 
         <form action="" className="w-96 grid gap-3 my-6" onSubmit={login}>
-          <label htmlFor="email" className="">
+          <label htmlFor="email" className="mx-2">
             <div>Email</div>
             <input
               required
@@ -93,7 +93,7 @@ function Login() {
               className="w-full px-4 py-2 border border-white rounded-sm bg-black focus:outline-none focus:outline focus:outline-blue-500"
             />
           </label>
-          <label htmlFor="password">
+          <label htmlFor="password" className="mx-2">
             <div>Password</div>
             <input
               required

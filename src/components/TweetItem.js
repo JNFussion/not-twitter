@@ -146,7 +146,9 @@ function TweetItem({
               <span className="font-bold capitalize hover:underline">
                 {name}
               </span>
-              <span className="text-gray-400 text-sm">@{username}</span>
+              <span className="hidden sm:inline text-gray-400 text-sm">
+                @{username}
+              </span>
             </Link>
           </h2>
           <div className="text-gray-500">

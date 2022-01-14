@@ -12,7 +12,7 @@ function Layout({ head, tweets }) {
   const [currentUser, setCurrentUser] = useState(getCurrentUser());
 
   return (
-    <article className="max-w-7xl mx-auto grid grid-cols-layout">
+    <article className="max-w-7xl mx-auto flex flex-wrap-reverse lg:grid lg:grid-cols-layout">
       <div>
         {currentUser && <Navbar />}
         {currentUser && <ProfileBtn />}
