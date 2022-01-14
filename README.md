@@ -24,6 +24,14 @@ Posible improvements that can be made.
 - Add trending section.
 - Add ability to edit and remove tweets.
 
+### Demo
+
+user: notTwitter.demo@gmail.com </br>
+password: password@1234 </br>
+[Try here](https://not-twitter-4c059.web.app) </br>
+
+[My public profile](https://not-twitter-4c059.web.app/profile/JNFussion).
+
 ## Resources
 
 List of resources used in this project.
